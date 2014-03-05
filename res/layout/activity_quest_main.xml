@@ -16,16 +16,18 @@
         android:text="@string/Question"
         android:textSize="24sp" />
 
-    <TextView
+    <Button
         android:id="@+id/answer1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/welcome"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="161dp"
-        android:text="TextView" />
+        android:text=""
+        android:clickable="true"
+        android:onClick="onAnswerClick" />
 
-    <TextView
+    <Button
         android:id="@+id/answer2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,25 +35,31 @@
         android:layout_alignBottom="@+id/answer1"
         android:layout_alignRight="@+id/welcome"
         android:layout_marginRight="35dp"
-        android:text="TextView" />
+        android:text=""
+        android:clickable="true"
+        android:onClick="onAnswerClick" />
 
-    <TextView
+    <Button
         android:id="@+id/answer3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/answer1"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="66dp"
-        android:text="TextView" />
+        android:text=""
+        android:clickable="true"
+        android:onClick="onAnswerClick" />
 
-    <TextView
+    <Button
         android:id="@+id/answer4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@+id/answer3"
         android:layout_alignBottom="@+id/answer3"
         android:layout_alignLeft="@+id/answer2"
-        android:text="TextView" />
+        android:text=""
+        android:clickable="true"
+        android:onClick="onAnswerClick" />
 
     <TextView
         android:id="@+id/textView1"
