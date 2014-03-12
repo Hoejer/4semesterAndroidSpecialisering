@@ -1,5 +1,7 @@
 package com.example.quizapp;
 
+import java.io.Console;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
@@ -10,10 +12,15 @@ import org.ksoap2.transport.HttpTransportSE;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 //TEst test
 
@@ -26,6 +33,7 @@ public class QuestMainActivity extends Activity {
 	private PropertyInfo topicToCallFrom;
 	private PropertyInfo answerToCallFrom;
 	private PropertyInfo idToCallFrom;
+	Boolean bla = true;
 	String topicFromIntent;
 	String userAnswer;
 	TextView questionTv;
@@ -79,8 +87,7 @@ public class QuestMainActivity extends Activity {
 		}
 	}
 
-	public void setClickableFalse()
-	{
+	public void setClickableFalse() {
 		answerTv1.setClickable(false);
 		answerTv2.setClickable(false);
 		answerTv3.setClickable(false);
@@ -88,6 +95,7 @@ public class QuestMainActivity extends Activity {
 		AsyncCallCheckAnswer checkAnswer = new AsyncCallCheckAnswer();
 		checkAnswer.execute();
 	}
+
 	private class AsyncCallGetQuestion extends AsyncTask<String, Void, Void> {
 
 		@Override
@@ -128,7 +136,7 @@ public class QuestMainActivity extends Activity {
 		@Override
 		protected void onPostExecute(Void result) {
 			// TODO Auto-generated method stub
-			super.onPostExecute(result);
+			rightWrongDialog(getCurrentFocus());
 		}
 
 		@Override
@@ -171,7 +179,7 @@ public class QuestMainActivity extends Activity {
 
 			SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
 			String s = response.toString();
-			String ss[] = s.split("\\*", 6);
+			String ss[] = s.split("\\* ", 6);
 			questionId = Integer.parseInt(ss[0]);
 			question = ss[1];
 			answer1String = ss[2];
@@ -185,6 +193,7 @@ public class QuestMainActivity extends Activity {
 	}
 
 	public void answerQuestion() {
+		bla = true;
 		SoapObject request = new SoapObject(NAMESPACE, "checkAnswer");
 		answerToCallFrom = new PropertyInfo();
 		answerToCallFrom.type = answerToCallFrom.STRING_CLASS;
@@ -209,12 +218,64 @@ public class QuestMainActivity extends Activity {
 					envelope);
 
 			SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
-			Boolean bla = Boolean.valueOf(response.toString());
+			bla = Boolean.valueOf(response.toString());
 
-		} catch (Exception e) {
+		}
+
+		catch (Exception e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	public void rightWrongDialog(View v) {
+		if (bla) {
+			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+
+			// Set the message to display
+			alertbox.setMessage("YOU'VE ANSWERED CORRECT, AND WON THIS ROUND!");
+
+			// Add a neutral button to the alert box and assign a click listener
+			alertbox.setNeutralButton("Next Question",
+					new DialogInterface.OnClickListener() {
+
+						// Click listener on the neutral button of alert box
+						public void onClick(DialogInterface arg0, int arg1) {
+							finish();
+							// The neutral button was clicked
+							Toast.makeText(getApplicationContext(),
+									"'OK' button clicked", Toast.LENGTH_LONG)
+									.show();
+						}
+					});
+
+			// show the alert box
+			alertbox.show();
+		}
+		else
+		{
+			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+
+			// Set the message to display
+			alertbox.setMessage("WRONG ANSWER, YOU'VE LOST THIS ROUND..");
+
+			// Add a neutral button to the alert box and assign a click listener
+			alertbox.setNeutralButton("Next Question",
+					new DialogInterface.OnClickListener() {
+
+						// Click listener on the neutral button of alert box
+						public void onClick(DialogInterface arg0, int arg1) {
+							finish();
+							// The neutral button was clicked
+							Toast.makeText(getApplicationContext(),
+									"'OK' button clicked", Toast.LENGTH_LONG)
+									.show();
+						}
+					});
+
+			// show the alert box
+			alertbox.show();
+		}
 	}
 
 	@Override
