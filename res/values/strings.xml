@@ -14,5 +14,6 @@
     <string name="Question">Question</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_quest_main">QuestMainActivity</string>
+    <string name="title_activity_login_main">LoginMainActivity</string>
 
 </resources>

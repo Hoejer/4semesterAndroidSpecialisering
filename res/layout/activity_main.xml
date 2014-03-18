@@ -23,7 +23,7 @@
         android:layout_below="@+id/welcome"
         android:layout_marginTop="49dp"
         android:gravity="center"
-        android:onClick="nySide"
+        android:onClick="SinglePlayerOnClick"
         android:text="@string/single_player" />
 
     <Button
