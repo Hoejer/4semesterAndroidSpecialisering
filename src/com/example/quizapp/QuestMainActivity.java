@@ -16,6 +16,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -25,6 +26,11 @@ import android.widget.Toast;
 //TEst test
 
 public class QuestMainActivity extends Activity {
+	
+	public static final String PREFS_NAME = "MyPrefsFile";
+	private static final String PREF_USERID = "UserId";
+	private static final String PREF_GAMEID = "GameId";
+	private static final String PREF_QUESTIONNUMB = "QuestionNumb";
 
 	private final String NAMESPACE = "http://tempuri.org/";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
@@ -33,6 +39,9 @@ public class QuestMainActivity extends Activity {
 	private PropertyInfo topicToCallFrom;
 	private PropertyInfo answerToCallFrom;
 	private PropertyInfo idToCallFrom;
+	private PropertyInfo questionNumbProp;
+	private PropertyInfo userIdProp;
+	private PropertyInfo gameIdProp;
 	Boolean bla = true;
 	String topicFromIntent;
 	String userAnswer;
@@ -42,6 +51,9 @@ public class QuestMainActivity extends Activity {
 	TextView answerTv3;
 	TextView answerTv4;
 	int questionId;
+	int gameId;
+	int userId;
+	String questionNumb;
 	String question;
 	String answer1String;
 	String answer2String;
@@ -58,6 +70,39 @@ public class QuestMainActivity extends Activity {
 		answerTv3 = (TextView) findViewById(R.id.answer3);
 		answerTv4 = (TextView) findViewById(R.id.answer4);
 		topicFromIntent = getIntent().getExtras().getString("choosenTopic");
+		
+		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+		userId = getId.getInt(PREF_USERID, -1);
+		gameId = getId.getInt(PREF_GAMEID, -1);
+		questionNumb = getId.getString(PREF_QUESTIONNUMB, "NothingFound");
+		if(questionNumb.equals("NothingFound"))
+		{
+			questionNumb = "question1";
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+		}
+		else if (questionNumb.equals("question1"))
+		{
+			questionNumb = "question2";
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+		}
+		else if (questionNumb.equals("question2"))
+		{
+			questionNumb = "question3";
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+		}
+		
+		else if (questionNumb.equals("question3"))
+		{
+			questionNumb = "question4";
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+		}
+		
+		else
+		{
+			questionNumb = "question1";
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+		}
+		
 
 		AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
 		getQuestion.execute();
@@ -193,20 +238,48 @@ public class QuestMainActivity extends Activity {
 	}
 
 	public void answerQuestion() {
-		bla = true;
-		SoapObject request = new SoapObject(NAMESPACE, "checkAnswer");
+		bla = false;
+		SoapObject request = new SoapObject(NAMESPACE, "answerQuestion");
 		answerToCallFrom = new PropertyInfo();
 		answerToCallFrom.type = answerToCallFrom.STRING_CLASS;
 		answerToCallFrom.setName("answerFromApp");
 		answerToCallFrom.setValue(userAnswer);
 		answerToCallFrom.setType(String.class);
+		
 		request.addProperty(answerToCallFrom);
+		
 		idToCallFrom = new PropertyInfo();
 		idToCallFrom.type = idToCallFrom.INTEGER_CLASS;
 		idToCallFrom.setName("idForQuest");
 		idToCallFrom.setValue(questionId);
 		idToCallFrom.setType(Integer.class);
+		
 		request.addProperty(idToCallFrom);
+		
+		questionNumbProp = new PropertyInfo();
+		questionNumbProp.type = questionNumbProp.STRING_CLASS;
+		questionNumbProp.setName("questionNumb");
+		questionNumbProp.setValue(questionNumb);
+		questionNumbProp.setType(String.class);
+		
+		request.addProperty(questionNumbProp);
+		
+		userIdProp = new PropertyInfo();
+		userIdProp.type = userIdProp.INTEGER_CLASS;
+		userIdProp.setName("userId");
+		userIdProp.setValue(userId);
+		userIdProp.setType(Integer.class);
+		
+		request.addProperty(userIdProp);
+		
+		gameIdProp = new PropertyInfo();
+		gameIdProp.type = gameIdProp.INTEGER_CLASS;
+		gameIdProp.setName("gameId");
+		gameIdProp.setValue(gameId);
+		gameIdProp.setType(Integer.class);
+		
+		request.addProperty(gameIdProp);
+		
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
 				SoapEnvelope.VER11);
 		envelope.dotNet = true;
@@ -214,7 +287,7 @@ public class QuestMainActivity extends Activity {
 		HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
 
 		try {
-			androidHttpTransport.call("http://tempuri.org/checkAnswer",
+			androidHttpTransport.call("http://tempuri.org/answerQuestion",
 					envelope);
 
 			SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
@@ -233,7 +306,7 @@ public class QuestMainActivity extends Activity {
 			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
 
 			// Set the message to display
-			alertbox.setMessage("YOU'VE ANSWERED CORRECT, AND WON THIS ROUND!");
+			alertbox.setMessage("YOU'VE ANSWERED CORRECT, AND WAS THE FASTEST!");
 
 			// Add a neutral button to the alert box and assign a click listener
 			alertbox.setNeutralButton("Next Question",
@@ -257,7 +330,7 @@ public class QuestMainActivity extends Activity {
 			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
 
 			// Set the message to display
-			alertbox.setMessage("WRONG ANSWER, YOU'VE LOST THIS ROUND..");
+			alertbox.setMessage("WRONG ANSWER OR TOO SLOW, YOU'VE LOST THIS ROUND..");
 
 			// Add a neutral button to the alert box and assign a click listener
 			alertbox.setNeutralButton("Next Question",

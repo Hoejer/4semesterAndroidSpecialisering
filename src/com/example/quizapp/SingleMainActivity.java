@@ -21,6 +21,7 @@ public class SingleMainActivity extends Activity {
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
+	private static final String PREF_QUESTIONNUMB = "QuestionNumb";
 	private final String NAMESPACE = "http://tempuri.org/";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
 	private final String SOAP_ACTION = "http://tempuri.org/getRandomTopic";
