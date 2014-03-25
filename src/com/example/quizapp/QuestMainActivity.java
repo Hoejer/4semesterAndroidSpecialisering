@@ -60,6 +60,10 @@ public class QuestMainActivity extends Activity {
 	String answer3String;
 	String answer4String;
 
+	/**
+	 * Assigner en masse textviews til navne, og henter userid, gameid og question numb ud af Preferences.
+	 * Herefter kalder vi den asynkrone klasse som skal hente et random spørgsmål ud af databasen gennem webservicen.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -75,7 +79,7 @@ public class QuestMainActivity extends Activity {
 		userId = getId.getInt(PREF_USERID, -1);
 		gameId = getId.getInt(PREF_GAMEID, -1);
 		questionNumb = getId.getString(PREF_QUESTIONNUMB, "NothingFound");
-		if(questionNumb.equals("NothingFound"))
+		if(questionNumb.equals("NothingFound") || questionNumb.equals("startQuestion"))
 		{
 			questionNumb = "question1";
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
@@ -109,6 +113,10 @@ public class QuestMainActivity extends Activity {
 
 	}
 
+	/**
+	 * Finder ud af hvilket svar man har trykket på, for så at kalde metoden setClickableFalse().
+	 * @param v
+	 */
 	public void onAnswerClick(View v) {
 		switch (v.getId()) {
 		case R.id.answer1:
@@ -132,6 +140,10 @@ public class QuestMainActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Deaktivere muligheden for at dobbeltklikke eller klikke på andre svar, når man har svaret.
+	 */
+	
 	public void setClickableFalse() {
 		answerTv1.setClickable(false);
 		answerTv2.setClickable(false);
@@ -141,6 +153,10 @@ public class QuestMainActivity extends Activity {
 		checkAnswer.execute();
 	}
 
+	/**
+	 * Den asynkrone klasse der kalder metoden som henter spørgsmålet fra databasen gennem webservicen.
+	 * Sætter spørgsmålet og de 4 svarmuligheder.
+	 */
 	private class AsyncCallGetQuestion extends AsyncTask<String, Void, Void> {
 
 		@Override
@@ -176,6 +192,10 @@ public class QuestMainActivity extends Activity {
 
 	}
 
+	/**
+	 * Den asynkrone klasse der kalder rightWrongDialog, for at tjekke om man har svaret rigtigt.
+	 */
+	
 	private class AsyncCallCheckAnswer extends AsyncTask<String, Void, Void> {
 
 		@Override
@@ -205,6 +225,11 @@ public class QuestMainActivity extends Activity {
 
 	}
 
+	/**
+	 * Kalder webservicen gennem en request der indeholder det topic som blev sendt med fra SingleMainActivity.
+	 * Den modtager en string som den splitter op.
+	 * @param oldTopic
+	 */
 	public void getQuestionFromWeb(String oldTopic) {
 		SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
 		topicToCallFrom = new PropertyInfo();
@@ -237,6 +262,9 @@ public class QuestMainActivity extends Activity {
 		}
 	}
 
+	/**
+	 * Sætter ens userId i Game question(1,2,3,4) hvis man har svaret rigtigt hurtigst.
+	 */
 	public void answerQuestion() {
 		bla = false;
 		SoapObject request = new SoapObject(NAMESPACE, "answerQuestion");
@@ -301,6 +329,10 @@ public class QuestMainActivity extends Activity {
 
 	}
 
+	/**
+	 * Dialog der fortæller om man har svaret rigtigt hurtigst, forkert eller for langsomt.
+	 * @param v
+	 */
 	public void rightWrongDialog(View v) {
 		if (bla) {
 			AlertDialog.Builder alertbox = new AlertDialog.Builder(this);

@@ -20,6 +20,7 @@ public class MainActivity extends Activity {
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
+	private static final String PREF_QUESTIONNUMB = "QuestionNumb";
 	private final String NAMESPACE = "http://tempuri.org/";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
 	private final String SOAP_ACTION = "http://tempuri.org/startGameBot";
@@ -59,12 +60,20 @@ public class MainActivity extends Activity {
 		// TODO Alertbox.
 	}
 
+	/**
+	 * Starter det asynkrone kald til webservicen, i forhold til at få kaldt 
+	 * metoden til at indsætte et Game i databasen.
+	 * @param view
+	 */
 	public void SinglePlayerOnClick(View view) 
 	{
 		AsyncStartGame asyncStartGame = new AsyncStartGame();
 		asyncStartGame.execute();
 	}
-
+	
+	/**
+	 * Starter et nyt intent, SingleMainActivity.
+	 */
 	public void SinglePlayerMain() 
 	{
 		Intent intent = new Intent(this, SingleMainActivity.class);
@@ -72,6 +81,9 @@ public class MainActivity extends Activity {
 		startActivity(intent);
 	}
 
+	/**
+	 * Den asynkrone klasse der kalder startGameBot(). Samt fejlhåndtere forkert gameId og sætter gameId til preferences.
+	 */
 	private class AsyncStartGame extends AsyncTask<String, Void, Void> 
 	{
 
@@ -92,6 +104,7 @@ public class MainActivity extends Activity {
 			else {
 				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
 						.putInt(PREF_GAMEID, gameId).commit();
+				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, "startQuestion").commit();
 				
 				SinglePlayerMain();
 
@@ -100,6 +113,9 @@ public class MainActivity extends Activity {
 
 	}
 
+	/**
+	 * Laver en request til webservicen som indeholder userId, og indsat et Game i databasen, som returnere et gameId.
+	 */
 	public void startGameBot() 
 	{
 		SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);

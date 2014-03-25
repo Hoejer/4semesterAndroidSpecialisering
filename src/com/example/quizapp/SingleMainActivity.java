@@ -10,10 +10,14 @@ import org.ksoap2.transport.HttpTransportSE;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class SingleMainActivity extends Activity {
@@ -27,10 +31,20 @@ public class SingleMainActivity extends Activity {
 	private final String SOAP_ACTION = "http://tempuri.org/getRandomTopic";
 	private final String METHOD_NAME = "getRandomTopic";
 	int gameId;
+	int userId;
+	int betMoney;
+	int potSizeFromWeb;
 	PropertyInfo gameIdProp;
+	PropertyInfo betProp;
+	PropertyInfo gameIdPropBet;
+	PropertyInfo userIdProp;
 	String topicFromWeb;
 	TextView tv;
+	TextView potSizeTextView;
      
+	/**
+	 * Når aktiviteten starter, henter den gameId fra preferences, og executer det asynkrone kald.
+	 */
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -39,18 +53,26 @@ public class SingleMainActivity extends Activity {
 
         SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         gameId = getId.getInt(PREF_GAMEID, -1);
+        SharedPreferences getUser = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        userId = getUser.getInt(PREF_USERID, -1);
         if(gameId == -1)
         {
         	UnableToGetGameId();
         }
         
         tv = (TextView) findViewById(R.id.tv_result);
+        potSizeTextView = (TextView)findViewById(R.id.potSize);
 
         AsyncCallWS task = new AsyncCallWS();
 
         task.execute();
+        
+        
     }
     
+    /**
+     *	Ansynkron klasse der kalder getTopic, og sætter det returnede topic i et textview.
+     */
     private class AsyncCallWS extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... params) {
@@ -62,7 +84,7 @@ public class SingleMainActivity extends Activity {
         @Override
         protected void onPostExecute(Void result) {
             Log.i("Do in background", "onPostExecute");
-            tv.setText(topicFromWeb);
+            alertDialogBet();
         }
  
         @Override
@@ -79,6 +101,9 @@ public class SingleMainActivity extends Activity {
  
     }
     
+    /**
+     * Henter et random topic fra databasen gennem webservicen, og sætter topicId på game.
+     */
     public void getTopic() 
     {
         //Create request
@@ -113,10 +138,129 @@ public class SingleMainActivity extends Activity {
         }
     }
     
+    public void alertDialogBet()
+    {
+    	AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+
+		// Set the message to display
+		alertbox.setMessage("The topic is " + topicFromWeb + "." + " How much do you wanna bet?" );
+		
+		final EditText input = new EditText(this);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.MATCH_PARENT);
+          input.setLayoutParams(lp);
+          alertbox.setView(input);
+
+		// Add a neutral button to the alert box and assign a click listener
+		alertbox.setNeutralButton("OK",
+				new DialogInterface.OnClickListener() {
+					// Click listener on the neutral button of alert box
+					public void onClick(DialogInterface arg0, int arg1) {
+						betMoney = Integer.parseInt(input.getText().toString());
+						AsyncBet asyncBet = new AsyncBet();
+						asyncBet.execute();
+					}
+				});
+
+		// show the alert box
+		alertbox.show();
+    }
+    
+    private class AsyncBet extends AsyncTask<String, Void, Void>
+    {
+    	@Override
+        protected Void doInBackground(String... params) {
+            Log.i("Do in background", "doInBackground");
+            setBet();
+            return null;
+        }
+ 
+        @Override
+        protected void onPostExecute(Void result) {
+            Log.i("Do in background", "onPostExecute");
+            if(potSizeFromWeb == 2147483647)
+            {
+            	//TODO Alertbox.
+            }
+            else
+            {	tv.setText(topicFromWeb);
+            	potSizeTextView.setText("Potsize is = " + potSizeFromWeb + ".");
+            }
+        }
+ 
+        @Override
+        protected void onPreExecute() {
+            Log.i("Do in background", "onPreExecute");
+            tv.setText("Choosing Topic");
+            
+        }
+ 
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            Log.i("Do in background", "onProgressUpdate");
+        }
+    }
+    
+    public void setBet()
+    {
+    	//Create request
+        SoapObject request = new SoapObject(NAMESPACE, "betTopicBot");
+        
+        betProp = new PropertyInfo();
+        betProp.type = betProp.INTEGER_CLASS;
+        betProp.setName("bet");
+        betProp.setValue(betMoney);
+        betProp.setType(Integer.class);
+        
+        request.addProperty(betProp);
+        
+        gameIdPropBet = new PropertyInfo();
+        gameIdPropBet.type = gameIdPropBet.INTEGER_CLASS;
+		gameIdPropBet.setName("gameId");
+		gameIdPropBet.setValue(gameId);
+		gameIdPropBet.setType(Integer.class);
+		
+		request.addProperty(gameIdPropBet);
+		
+		userIdProp = new PropertyInfo();
+		userIdProp.type = userIdProp.INTEGER_CLASS;
+		userIdProp.setName("userId");
+		userIdProp.setValue(userId);
+		userIdProp.setType(Integer.class);
+		
+		request.addProperty(userIdProp);
+        //Create envelope
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        envelope.dotNet = true;
+        //Set output SOAP object
+        envelope.setOutputSoapObject(request);
+        //Create HTTP call object
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+     
+        try {
+            //Invole web service
+            androidHttpTransport.call("http://tempuri.org/betTopicBot", envelope);
+            //Get the response
+            SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
+            //Assign it to variable
+            potSizeFromWeb = Integer.parseInt(response.toString());
+     
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
     public void UnableToGetGameId()
     {
     	//TODO alertbox.
     }
+    
+    /**
+     * Starter questmainacitivty og sender topic med.
+     * @param view
+     */
     public void goToQuestion(View view)
     {
     	Intent intent = new Intent(this, QuestMainActivity.class);

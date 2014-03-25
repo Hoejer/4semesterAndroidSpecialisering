@@ -44,6 +44,10 @@ public class LoginMainActivity extends Activity {
 		setContentView(R.layout.activity_login_main);
 	}
 	
+	/**
+	 * Henter brugernavn og password ud af app'en og sender dem til verificering igennem AsyncCallLogin.
+	 * @param v
+	 */
 	public void onClickLogin(View v)
 	{
 		user = (EditText)findViewById(R.id.editText1);
@@ -62,7 +66,9 @@ public class LoginMainActivity extends Activity {
 		
 		asyncCallLogin.execute();
 	}
-
+	/**
+	 * Laver en request der indeholder brugernavn og password, og sender det igennem webservicen.
+	 */
 	public void Login()
 	{
 		SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
@@ -105,11 +111,18 @@ public class LoginMainActivity extends Activity {
 		
 	}
 	
+	/**
+	 * Laver et nyt intent, som sender dig videre til MainActivity.
+	 */
 	public void toMain()
 	{
 		Intent intent = new Intent(this, MainActivity.class);    	
     	startActivity(intent);
 	}
+	
+	/**
+	 * Fejlhåndtere login, ved at lave en alertDialog.
+	 */
 	
 	public void failedLogin()
 	{
@@ -132,6 +145,10 @@ public class LoginMainActivity extends Activity {
 		alertbox.show();
 	}
 	
+	/**
+	 *	Den asyncrone klasse der kalder metoden Login, og fejlhåndtere hvis login er forkert, ved at kalde failedLogin().
+	 *	Sætter desuden userid ind i preferences.
+	 */
 	private class AsyncCallLogin extends AsyncTask<String, Void, Void>
 	{
 
