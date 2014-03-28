@@ -1,5 +1,7 @@
 package com.example.quizapp;
 
+import java.util.ArrayList;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
@@ -17,7 +19,10 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class LoginMainActivity extends Activity {
@@ -25,23 +30,32 @@ public class LoginMainActivity extends Activity {
 	
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERID = "UserId";
+	private static final String PREF_USERNAME = "Username";
+	private static final String PREF_BANK = "Bank";
 	
 	private final String NAMESPACE = "http://tempuri.org/";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
 	private final String SOAP_ACTION = "http://tempuri.org/loginCheck";
 	private final String METHOD_NAME = "loginCheck";
+	LinearLayout loadSpinner;
 	PropertyInfo usernameProp;
 	PropertyInfo passwordProp;
+	Button loginButton;
 	EditText user;
 	EditText pass;
 	String userNameApp;
 	String passWordApp;
+	String userNameFromDB;
+	int bankFromDB;
+	ArrayList<String> userFromDB;
 	int userId;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login_main);
+		loadSpinner = (LinearLayout) findViewById(R.id.linelayout);
+
 	}
 	
 	/**
@@ -50,6 +64,8 @@ public class LoginMainActivity extends Activity {
 	 */
 	public void onClickLogin(View v)
 	{
+		loginButton = (Button)findViewById(R.id.loginBtn);
+		loginButton.setClickable(false);
 		user = (EditText)findViewById(R.id.editText1);
 		pass = (EditText)findViewById(R.id.editText2);
 		
@@ -98,9 +114,19 @@ public class LoginMainActivity extends Activity {
 		try {
 			androidHttpTransport.call(SOAP_ACTION, envelope);
 
-			SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
-			
-			userId = Integer.parseInt(response.toString());
+			SoapObject response = (SoapObject) envelope.bodyIn;
+			SoapObject property = (SoapObject)response.getProperty(0);
+			int count = property.getPropertyCount();
+			userFromDB = new ArrayList<String>();
+            for (int i = 0; i < count; i++)
+            {
+            	//SoapObject property = (SoapObject)response.getProperty(i);
+                userFromDB.add(property.getProperty(i).toString());
+            }
+
+			userId = Integer.parseInt(userFromDB.get(0));
+			userNameFromDB = userFromDB.get(1);
+			bankFromDB = Integer.parseInt(userFromDB.get(2));
 			
 		} 
 		catch (Exception e) {
@@ -163,11 +189,15 @@ public class LoginMainActivity extends Activity {
 			if(userId == 999)
 			{
 				failedLogin();
+				loginButton.setClickable(true);
 			}
 			
 			else
 			{
 				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_USERID, userId).commit();
+				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_USERNAME, userNameFromDB).commit();
+				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_BANK, bankFromDB).commit();
+				loadSpinner.setVisibility(View.GONE);
 				
 				toMain();
 				
@@ -176,7 +206,7 @@ public class LoginMainActivity extends Activity {
 
 		@Override
 		protected void onPreExecute() {
-			// TODO Auto-generated method stub
+			loadSpinner.setVisibility(View.VISIBLE);
 			super.onPreExecute();
 		}
 

@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
@@ -21,10 +22,16 @@ public class MainActivity extends Activity {
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
 	private static final String PREF_QUESTIONNUMB = "QuestionNumb";
+	private static final String PREF_USERNAME = "Username";
+	private static final String PREF_BANK = "Bank";
 	private final String NAMESPACE = "http://tempuri.org/";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
 	private final String SOAP_ACTION = "http://tempuri.org/startGameBot";
 	private final String METHOD_NAME = "startGameBot";
+	TextView usernameTV;
+	TextView moneyTV;
+	String username;
+	int money;
 	int userId;
 	int gameId;
 	PropertyInfo userIdProp;
@@ -34,7 +41,13 @@ public class MainActivity extends Activity {
 	{
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		usernameTV = (TextView)findViewById(R.id.usernameProfile);
+		moneyTV = (TextView)findViewById(R.id.money);
 		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+		username = getId.getString(PREF_USERNAME, "Error!");
+		usernameTV.setText(username);
+		money = getId.getInt(PREF_BANK, -1);
+		moneyTV.setText(String.valueOf(money));
 		userId = getId.getInt(PREF_USERID, -1);
 		if (userId == -1) {
 			FailedToRecieveUserId();

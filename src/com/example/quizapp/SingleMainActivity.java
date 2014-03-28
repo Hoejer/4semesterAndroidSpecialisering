@@ -16,8 +16,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.text.InputType;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -28,6 +31,7 @@ public class SingleMainActivity extends Activity {
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
 	private static final String PREF_QUESTIONNUMB = "QuestionNumb";
+	private static final String PREF_BANK = "Bank";
 	private final String NAMESPACE = "http://tempuri.org/";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
 	private final String SOAP_ACTION = "http://tempuri.org/getRandomTopic";
@@ -35,6 +39,7 @@ public class SingleMainActivity extends Activity {
 	int gameId;
 	int userId;
 	int betMoney;
+	int currMoney;
 	int potSizeFromWeb;
 	boolean win;
 	ArrayList<Integer> winnersList;
@@ -148,33 +153,90 @@ public class SingleMainActivity extends Activity {
         }
     }
     
-    public void alertDialogBet()
-    {
-    	AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+	public void alertDialogBet() {
 
-		// Set the message to display
-		alertbox.setMessage("The topic is " + topicFromWeb + "." + " How much do you wanna bet?" );
+		TextView title = new TextView(this);
+		title.setText("Place your bet!");
+		title.setGravity(Gravity.CENTER);
 		
 		final EditText input = new EditText(this);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.MATCH_PARENT);
-          input.setLayoutParams(lp);
-          alertbox.setView(input);
+		input.setInputType(InputType.TYPE_CLASS_NUMBER);
+		final AlertDialog d = new AlertDialog.Builder(this)
+				.setCustomTitle(title)
+				.setMessage("The topic is " + topicFromWeb + "." + " How much do you wanna bet?")
+				.setPositiveButton(android.R.string.ok, null) // Set to null. We
+																// override the
+																// onclick
+				.create();
+		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+        LinearLayout.LayoutParams.MATCH_PARENT,
+        LinearLayout.LayoutParams.MATCH_PARENT);
+	    input.setLayoutParams(lp);
+	    d.setView(input);
+		d.setOnShowListener(new DialogInterface.OnShowListener() {
 
-		// Add a neutral button to the alert box and assign a click listener
-		alertbox.setNeutralButton("OK",
-				new DialogInterface.OnClickListener() {
-					// Click listener on the neutral button of alert box
-					public void onClick(DialogInterface arg0, int arg1) {
+			@Override
+			public void onShow(DialogInterface dialog) {
+
+				Button b = d.getButton(AlertDialog.BUTTON_POSITIVE);
+				b.setOnClickListener(new View.OnClickListener() {
+
+					@Override
+					public void onClick(View view) {
+						// TODO Do something
+						
 						betMoney = Integer.parseInt(input.getText().toString());
-						AsyncBet asyncBet = new AsyncBet();
-						asyncBet.execute();
+						currMoney = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getInt(PREF_BANK, -1);
+						if(betMoney > currMoney)
+						{
+							input.setText("You only have : " + currMoney);
+						}
+						else
+						{
+							AsyncBet asyncBet = new AsyncBet();
+							asyncBet.execute();
+							d.dismiss();
+						}
+						
 					}
 				});
-
-		// show the alert box
-		alertbox.show();
+			}
+		});
+    	
+//    	AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+//
+//		// Set the message to display
+//		alertbox.setMessage("The topic is " + topicFromWeb + "." + " How much do you wanna bet?" );
+//		
+//		final EditText input = new EditText(this);
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                                LinearLayout.LayoutParams.MATCH_PARENT,
+//                                LinearLayout.LayoutParams.MATCH_PARENT);
+//          input.setLayoutParams(lp);
+//          alertbox.setView(input);
+//
+//		// Add a neutral button to the alert box and assign a click listener
+//		alertbox.setNeutralButton("OK",
+//				new DialogInterface.OnClickListener() {
+//					// Click listener on the neutral button of alert box
+//					public void onClick(DialogInterface arg0, int arg1) {
+//						betMoney = Integer.parseInt(input.getText().toString());
+//						currMoney = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getInt(PREF_BANK, -1);
+//						if(betMoney > currMoney)
+//						{
+//							input.setText("You only have : " + currMoney);
+//						}
+//						else
+//						{
+//							AsyncBet asyncBet = new AsyncBet();
+//							asyncBet.execute();
+//						}
+//						
+//					}
+//				});
+//
+//		// show the alert box
+		d.show();
     }
     
     private class AsyncBet extends AsyncTask<String, Void, Void>
@@ -367,7 +429,14 @@ public class SingleMainActivity extends Activity {
     		String winwin = "";
     		for(int i = 0; i < winnersList.size(); i++)
     		{
-    			winwin += winnersList.get(i).toString() + " ";
+    			if(i == winnersList.size() - 1)
+    			{
+    				winwin += winnersList.get(i).toString();
+    			}
+    			else
+    			{
+    				winwin += winnersList.get(i).toString() + ", ";
+    			}
     		}
     		// Set the message to display
     		alertbox.setMessage("User(s) who won was : " + winwin );

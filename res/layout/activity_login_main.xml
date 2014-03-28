@@ -17,10 +17,9 @@
         android:layout_marginTop="42dp"
         android:ems="10"
         android:hint="Username" >
-
-        <requestFocus />
     </EditText>
 
+    
     <EditText
         android:id="@+id/editText2"
         android:layout_width="wrap_content"
@@ -33,12 +32,31 @@
         android:hint="Password" />
 
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/loginBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignRight="@+id/editText2"
         android:layout_centerVertical="true"
         android:text="Login"
         android:onClick="onClickLogin" />
+
+    <LinearLayout
+        android:id="@+id/linelayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone" >    
+        
+        <ProgressBar
+            android:id="@+id/pbHeaderProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="100dip"
+            android:minHeight="100dip" >
+        </ProgressBar>
+        
+        
+        </LinearLayout>
 
 </RelativeLayout>
