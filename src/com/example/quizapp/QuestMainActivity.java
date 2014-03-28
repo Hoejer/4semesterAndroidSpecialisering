@@ -1,6 +1,6 @@
 package com.example.quizapp;
 
-import java.io.Console;
+import java.util.ArrayList;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
@@ -14,14 +14,14 @@ import android.os.Bundle;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-//TEst test
+
 
 public class QuestMainActivity extends Activity {
 	
@@ -40,6 +40,9 @@ public class QuestMainActivity extends Activity {
 	private PropertyInfo questionNumbProp;
 	private PropertyInfo userIdProp;
 	private PropertyInfo gameIdProp;
+	private PropertyInfo gameIdWhoWon;
+	boolean win;
+	ArrayList<Integer> winnersList;
 	Boolean bla = true;
 	String topicFromIntent;
 	String userAnswer;
@@ -51,12 +54,14 @@ public class QuestMainActivity extends Activity {
 	int questionId;
 	int gameId;
 	int userId;
+	int potSizeFromWeb;
 	String questionNumb;
 	String question;
 	String answer1String;
 	String answer2String;
 	String answer3String;
 	String answer4String;
+	boolean finished;
 
 	/**
 	 * Assigner en masse textviews til navne, og henter userid, gameid og question numb ud af Preferences.
@@ -72,6 +77,7 @@ public class QuestMainActivity extends Activity {
 		answerTv3 = (TextView) findViewById(R.id.answer3);
 		answerTv4 = (TextView) findViewById(R.id.answer4);
 		topicFromIntent = getIntent().getExtras().getString("choosenTopic");
+		potSizeFromWeb = getIntent().getExtras().getInt("pot");
 		
 		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 		userId = getId.getInt(PREF_USERID, -1);
@@ -80,23 +86,40 @@ public class QuestMainActivity extends Activity {
 		if(questionNumb.equals("NothingFound") || questionNumb.equals("startQuestion"))
 		{
 			questionNumb = "question1";
+			finished = false;
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
+			getQuestion.execute();
 		}
 		else if (questionNumb.equals("question1"))
 		{
 			questionNumb = "question2";
+			finished = false;
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
+			getQuestion.execute();
 		}
 		else if (questionNumb.equals("question2"))
 		{
 			questionNumb = "question3";
+			finished = false;
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
+			getQuestion.execute();
 		}
 		
 		else if (questionNumb.equals("question3"))
 		{
 			questionNumb = "question4";
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
+			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
+			getQuestion.execute();
+		}
+		else if(questionNumb.equals("question4"))
+		{
+			AsyncWhoWon asyncWhoWon = new AsyncWhoWon();
+			asyncWhoWon.execute();
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, "startQuestion").commit();
 		}
 		
 		else
@@ -106,8 +129,7 @@ public class QuestMainActivity extends Activity {
 		}
 		
 
-		AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
-		getQuestion.execute();
+		
 
 	}
 
@@ -344,11 +366,8 @@ public class QuestMainActivity extends Activity {
 
 						// Click listener on the neutral button of alert box
 						public void onClick(DialogInterface arg0, int arg1) {
-							finish();
-							// The neutral button was clicked
-							Toast.makeText(getApplicationContext(),
-									"'OK' button clicked", Toast.LENGTH_LONG)
-									.show();
+								nextQuestion();
+								finish();
 						}
 					});
 
@@ -368,11 +387,9 @@ public class QuestMainActivity extends Activity {
 
 						// Click listener on the neutral button of alert box
 						public void onClick(DialogInterface arg0, int arg1) {
-							finish();
-							// The neutral button was clicked
-							Toast.makeText(getApplicationContext(),
-									"'OK' button clicked", Toast.LENGTH_LONG)
-									.show();
+								nextQuestion();
+								finish();
+								
 						}
 					});
 
@@ -380,7 +397,96 @@ public class QuestMainActivity extends Activity {
 			alertbox.show();
 		}
 	}
+	
+	private void goToWinner()
+	{
+		Intent intent = new Intent(this, WinnerMainActivity.class);
+		intent.putExtra("Winners", winnersList);
+		intent.putExtra("pot", potSizeFromWeb);
+		startActivity(intent);
+		finish();
+	}
+	private class AsyncWhoWon extends AsyncTask<String, Void, Void>
+    {
 
+		@Override
+		protected Void doInBackground(String... params) {
+			checkWhoWon();
+			return null;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			goToWinner();
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+    	
+    }
+    
+    public void checkWhoWon()
+    {
+    	//Create request
+        SoapObject request = new SoapObject(NAMESPACE, "whoWon");
+        
+        gameIdWhoWon = new PropertyInfo();
+        gameIdWhoWon.type = gameIdWhoWon.INTEGER_CLASS;
+        gameIdWhoWon.setName("gameId");
+        gameIdWhoWon.setValue(gameId);
+        gameIdWhoWon.setType(Integer.class);
+        
+        request.addProperty(gameIdWhoWon);
+        
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        envelope.dotNet = true;
+        //Set output SOAP object
+        envelope.setOutputSoapObject(request);
+        //Create HTTP call object
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+     
+        try {
+            //Invole web service
+            androidHttpTransport.call("http://tempuri.org/whoWon", envelope);
+            //Get the response
+            SoapObject response = (SoapObject) envelope.bodyIn;
+            
+            //Lav array, hvis der er flere vindere.
+            int count = response.getPropertyCount();
+            winnersList = new ArrayList<Integer>(); 
+            for (int i = 0; i < count; i++)
+            {
+            	SoapObject property = (SoapObject)response.getProperty(i);
+                winnersList.add(Integer.parseInt(property.getProperty(i).toString()));
+            }
+            win = true;
+     
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+
+	public void nextQuestion()
+	{
+		Intent intent = new Intent(this, QuestMainActivity.class);
+		intent.putExtra("choosenTopic", topicFromIntent);
+		intent.putExtra("pot", potSizeFromWeb);
+	
+		startActivity(intent);
+		finish();
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

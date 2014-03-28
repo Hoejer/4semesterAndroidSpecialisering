@@ -15,5 +15,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_quest_main">QuestMainActivity</string>
     <string name="title_activity_login_main">LoginMainActivity</string>
+    <string name="title_activity_who_won_main">WhoWonMainActivity</string>
+    <string name="title_activity_winner_main">WinnerMainActivity</string>
 
 </resources>

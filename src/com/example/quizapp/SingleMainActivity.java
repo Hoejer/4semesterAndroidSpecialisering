@@ -41,12 +41,9 @@ public class SingleMainActivity extends Activity {
 	int betMoney;
 	int currMoney;
 	int potSizeFromWeb;
-	boolean win;
-	ArrayList<Integer> winnersList;
-	PropertyInfo gameIdBetProp;
+	PropertyInfo gameIdPropBet;
 	PropertyInfo gameIdProp;
 	PropertyInfo betProp;
-	PropertyInfo gameIdPropBet;
 	PropertyInfo userIdProp;
 	String topicFromWeb;
 	String winnerString;
@@ -203,39 +200,6 @@ public class SingleMainActivity extends Activity {
 			}
 		});
     	
-//    	AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-//
-//		// Set the message to display
-//		alertbox.setMessage("The topic is " + topicFromWeb + "." + " How much do you wanna bet?" );
-//		
-//		final EditText input = new EditText(this);
-//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-//                                LinearLayout.LayoutParams.MATCH_PARENT,
-//                                LinearLayout.LayoutParams.MATCH_PARENT);
-//          input.setLayoutParams(lp);
-//          alertbox.setView(input);
-//
-//		// Add a neutral button to the alert box and assign a click listener
-//		alertbox.setNeutralButton("OK",
-//				new DialogInterface.OnClickListener() {
-//					// Click listener on the neutral button of alert box
-//					public void onClick(DialogInterface arg0, int arg1) {
-//						betMoney = Integer.parseInt(input.getText().toString());
-//						currMoney = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getInt(PREF_BANK, -1);
-//						if(betMoney > currMoney)
-//						{
-//							input.setText("You only have : " + currMoney);
-//						}
-//						else
-//						{
-//							AsyncBet asyncBet = new AsyncBet();
-//							asyncBet.execute();
-//						}
-//						
-//					}
-//				});
-//
-//		// show the alert box
 		d.show();
     }
     
@@ -335,142 +299,14 @@ public class SingleMainActivity extends Activity {
      */
     public void goToQuestion(View view)
     {
-    	SharedPreferences getQuestionNumb = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-    	String quest = getQuestionNumb.getString(PREF_QUESTIONNUMB, "NothingFound");
-    	if(quest.equals("question4"))
-    	{
-    		AsyncWhoWon asyncWhoWon = new AsyncWhoWon();
-    		asyncWhoWon.execute();
-    	}
-    	else
-    	{
+    	
     		Intent intent = new Intent(this, QuestMainActivity.class);
     		intent.putExtra("choosenTopic", topicFromWeb);
+    		intent.putExtra("pot", potSizeFromWeb);
     	
     		startActivity(intent);
-    	}
+    		finish();
     }
     
-    private class AsyncWhoWon extends AsyncTask<String, Void, Void>
-    {
-
-		@Override
-		protected Void doInBackground(String... params) {
-			checkWhoWon();
-			return null;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			// TODO Auto-generated method stub
-			super.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			whoWon();
-			super.onPostExecute(result);
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... values) {
-			// TODO Auto-generated method stub
-			super.onProgressUpdate(values);
-		}
-    	
-    }
     
-    public void checkWhoWon()
-    {
-    	//Create request
-        SoapObject request = new SoapObject(NAMESPACE, "whoWon");
-        
-        gameIdBetProp = new PropertyInfo();
-        gameIdBetProp.type = gameIdBetProp.INTEGER_CLASS;
-        gameIdBetProp.setName("gameId");
-        gameIdBetProp.setValue(gameId);
-        gameIdBetProp.setType(Integer.class);
-        
-        request.addProperty(gameIdBetProp);
-        
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
-                SoapEnvelope.VER11);
-        envelope.dotNet = true;
-        //Set output SOAP object
-        envelope.setOutputSoapObject(request);
-        //Create HTTP call object
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
-     
-        try {
-            //Invole web service
-            androidHttpTransport.call("http://tempuri.org/whoWon", envelope);
-            //Get the response
-            SoapObject response = (SoapObject) envelope.bodyIn;
-            
-            //Lav array, hvis der er flere vindere.
-            int count = response.getPropertyCount();
-            winnersList = new ArrayList<Integer>(); 
-            for (int i = 0; i < count; i++)
-            {
-            	SoapObject property = (SoapObject)response.getProperty(i);
-                winnersList.add(Integer.parseInt(property.getProperty(i).toString()));
-            }
-            win = true;
-     
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    public void whoWon()
-    {
-    	if(win)
-    	{
-    		AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-    		String winwin = "";
-    		for(int i = 0; i < winnersList.size(); i++)
-    		{
-    			if(i == winnersList.size() - 1)
-    			{
-    				winwin += winnersList.get(i).toString();
-    			}
-    			else
-    			{
-    				winwin += winnersList.get(i).toString() + ", ";
-    			}
-    		}
-    		// Set the message to display
-    		alertbox.setMessage("User(s) who won was : " + winwin );
-		
-    		// Add a neutral button to the alert box and assign a click listener
-			alertbox.setNeutralButton("OK",
-					new DialogInterface.OnClickListener() {
-						// Click listener on the neutral button of alert box
-						public void onClick(DialogInterface arg0, int arg1) {
-						finish();
-					}
-				});
-
-		// show the alert box
-		alertbox.show();
-    	}
-    	else
-    	{
-    		AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
-
-    		// Set the message to display
-    		alertbox.setMessage("You've lost!!" );
-		
-    		// Add a neutral button to the alert box and assign a click listener
-			alertbox.setNeutralButton("OK",
-					new DialogInterface.OnClickListener() {
-						// Click listener on the neutral button of alert box
-						public void onClick(DialogInterface arg0, int arg1) {
-						finish();
-					}
-				});
-
-		// show the alert box
-		alertbox.show();
-    	}
-    }
 }

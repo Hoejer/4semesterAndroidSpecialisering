@@ -40,6 +40,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.example.quizapp.WhoWonMainActivity"
+            android:label="@string/title_activity_who_won_main" >
+        </activity>
+        <activity
+            android:name="com.example.quizapp.WinnerMainActivity"
+            android:label="@string/title_activity_winner_main" >
+        </activity>
     </application>
 
 </manifest>

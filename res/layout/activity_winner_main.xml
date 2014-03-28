@@ -1,0 +1,63 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.quizapp.WinnerMainActivity"
+    tools:ignore="MergeRootFrame" >
+
+    <TextView
+        android:id="@+id/winnerTopLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp"
+        android:text="THE WINNER IS" 
+        android:textSize="60sp"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/userWhoWon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/winnerTopLbl"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:text="User Who Won!"
+        android:textSize="40sp"
+        android:gravity="center" />
+
+    <TextView
+        android:id="@+id/potsizeWinnerLbl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/userWhoWon"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="43dp"
+        android:gravity="center"
+        android:text="POT SIZE"
+        android:textSize="40sp" />
+
+    <TextView
+        android:id="@+id/potsizeWinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/potsizeWinnerLbl"
+        android:layout_centerHorizontal="true"
+        android:text="Amount!"
+        android:textSize="60sp" />
+
+    <Button
+        android:id="@+id/backButtonWinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/potsizeWinner"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="13dp"
+        android:text="Go Back"
+        android:minWidth="300dp"
+        android:onClick="onBackClick" />
+    
+    </RelativeLayout>
+
