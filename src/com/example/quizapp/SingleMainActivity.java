@@ -1,5 +1,7 @@
 package com.example.quizapp;
 
+import java.util.ArrayList;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
@@ -34,11 +36,19 @@ public class SingleMainActivity extends Activity {
 	int userId;
 	int betMoney;
 	int potSizeFromWeb;
+	boolean win;
+	ArrayList<Integer> winnersList;
+	PropertyInfo gameIdBetProp;
 	PropertyInfo gameIdProp;
 	PropertyInfo betProp;
 	PropertyInfo gameIdPropBet;
 	PropertyInfo userIdProp;
 	String topicFromWeb;
+	String winnerString;
+	String winner1;
+	String winner2;
+	String winner3;
+	String winner4;
 	TextView tv;
 	TextView potSizeTextView;
      
@@ -263,9 +273,135 @@ public class SingleMainActivity extends Activity {
      */
     public void goToQuestion(View view)
     {
-    	Intent intent = new Intent(this, QuestMainActivity.class);
-    	intent.putExtra("choosenTopic", topicFromWeb);
+    	SharedPreferences getQuestionNumb = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+    	String quest = getQuestionNumb.getString(PREF_QUESTIONNUMB, "NothingFound");
+    	if(quest.equals("question4"))
+    	{
+    		AsyncWhoWon asyncWhoWon = new AsyncWhoWon();
+    		asyncWhoWon.execute();
+    	}
+    	else
+    	{
+    		Intent intent = new Intent(this, QuestMainActivity.class);
+    		intent.putExtra("choosenTopic", topicFromWeb);
     	
-    	startActivity(intent);
+    		startActivity(intent);
+    	}
+    }
+    
+    private class AsyncWhoWon extends AsyncTask<String, Void, Void>
+    {
+
+		@Override
+		protected Void doInBackground(String... params) {
+			checkWhoWon();
+			return null;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			// TODO Auto-generated method stub
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			whoWon();
+			super.onPostExecute(result);
+		}
+
+		@Override
+		protected void onProgressUpdate(Void... values) {
+			// TODO Auto-generated method stub
+			super.onProgressUpdate(values);
+		}
+    	
+    }
+    
+    public void checkWhoWon()
+    {
+    	//Create request
+        SoapObject request = new SoapObject(NAMESPACE, "whoWon");
+        
+        gameIdBetProp = new PropertyInfo();
+        gameIdBetProp.type = gameIdBetProp.INTEGER_CLASS;
+        gameIdBetProp.setName("gameId");
+        gameIdBetProp.setValue(gameId);
+        gameIdBetProp.setType(Integer.class);
+        
+        request.addProperty(gameIdBetProp);
+        
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        envelope.dotNet = true;
+        //Set output SOAP object
+        envelope.setOutputSoapObject(request);
+        //Create HTTP call object
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+     
+        try {
+            //Invole web service
+            androidHttpTransport.call("http://tempuri.org/whoWon", envelope);
+            //Get the response
+            SoapObject response = (SoapObject) envelope.bodyIn;
+            
+            //Lav array, hvis der er flere vindere.
+            int count = response.getPropertyCount();
+            winnersList = new ArrayList<Integer>(); 
+            for (int i = 0; i < count; i++)
+            {
+            	SoapObject property = (SoapObject)response.getProperty(i);
+                winnersList.add(Integer.parseInt(property.getProperty(i).toString()));
+            }
+            win = true;
+     
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void whoWon()
+    {
+    	if(win)
+    	{
+    		AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+    		String winwin = "";
+    		for(int i = 0; i < winnersList.size(); i++)
+    		{
+    			winwin += winnersList.get(i).toString() + " ";
+    		}
+    		// Set the message to display
+    		alertbox.setMessage("User(s) who won was : " + winwin );
+		
+    		// Add a neutral button to the alert box and assign a click listener
+			alertbox.setNeutralButton("OK",
+					new DialogInterface.OnClickListener() {
+						// Click listener on the neutral button of alert box
+						public void onClick(DialogInterface arg0, int arg1) {
+						finish();
+					}
+				});
+
+		// show the alert box
+		alertbox.show();
+    	}
+    	else
+    	{
+    		AlertDialog.Builder alertbox = new AlertDialog.Builder(this);
+
+    		// Set the message to display
+    		alertbox.setMessage("You've lost!!" );
+		
+    		// Add a neutral button to the alert box and assign a click listener
+			alertbox.setNeutralButton("OK",
+					new DialogInterface.OnClickListener() {
+						// Click listener on the neutral button of alert box
+						public void onClick(DialogInterface arg0, int arg1) {
+						finish();
+					}
+				});
+
+		// show the alert box
+		alertbox.show();
+    	}
     }
 }
