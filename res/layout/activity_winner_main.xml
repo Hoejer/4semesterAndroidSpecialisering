@@ -59,5 +59,24 @@
         android:minWidth="300dp"
         android:onClick="onBackClick" />
     
+    <LinearLayout
+        android:id="@+id/linelayoutWinner"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone" >    
+        
+        <ProgressBar
+            android:id="@+id/pbHeaderProgressWinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="100dip"
+            android:minHeight="100dip" >
+        </ProgressBar>
+        
+        
+        </LinearLayout>
+    
     </RelativeLayout>
 

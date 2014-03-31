@@ -42,10 +42,8 @@ public class QuestMainActivity extends Activity {
 	private PropertyInfo questionNumbProp;
 	private PropertyInfo userIdProp;
 	private PropertyInfo gameIdProp;
-	private PropertyInfo gameIdWhoWon;
 	boolean win;
 	LinearLayout loadSpinner;
-	ArrayList<Integer> winnersList;
 	Boolean bla = true;
 	String topicFromIntent;
 	String userAnswer;
@@ -124,12 +122,6 @@ public class QuestMainActivity extends Activity {
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
 			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
 			getQuestion.execute();
-		}
-		else if(questionNumb.equals("question4"))
-		{
-			AsyncWhoWon asyncWhoWon = new AsyncWhoWon();
-			asyncWhoWon.execute();
-			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, "startQuestion").commit();
 		}
 		
 		else
@@ -414,91 +406,26 @@ public class QuestMainActivity extends Activity {
 	private void goToWinner()
 	{
 		Intent intent = new Intent(this, WinnerMainActivity.class);
-		intent.putExtra("Winners", winnersList);
+		intent.putExtra("gameId", gameId);
 		intent.putExtra("pot", potSizeFromWeb);
 		startActivity(intent);
 		finish();
 	}
-	private class AsyncWhoWon extends AsyncTask<String, Void, Void>
-    {
-
-		@Override
-		protected Void doInBackground(String... params) {
-			checkWhoWon();
-			return null;
-		}
-
-		@Override
-		protected void onPreExecute() {
-			loadSpinner.setVisibility(View.VISIBLE);
-			// TODO Auto-generated method stub
-			super.onPreExecute();
-		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-			goToWinner();
-			super.onPostExecute(result);
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... values) {
-			// TODO Auto-generated method stub
-			super.onProgressUpdate(values);
-		}
-    	
-    }
-    
-    public void checkWhoWon()
-    {
-    	//Create request
-        SoapObject request = new SoapObject(NAMESPACE, "whoWon");
-        
-        gameIdWhoWon = new PropertyInfo();
-        gameIdWhoWon.type = gameIdWhoWon.INTEGER_CLASS;
-        gameIdWhoWon.setName("gameId");
-        gameIdWhoWon.setValue(gameId);
-        gameIdWhoWon.setType(Integer.class);
-        
-        request.addProperty(gameIdWhoWon);
-        
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
-                SoapEnvelope.VER11);
-        envelope.dotNet = true;
-        //Set output SOAP object
-        envelope.setOutputSoapObject(request);
-        //Create HTTP call object
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
-     
-        try {
-            //Invole web service
-            androidHttpTransport.call("http://tempuri.org/whoWon", envelope);
-            //Get the response
-            SoapObject response = (SoapObject) envelope.bodyIn;
-            
-            //Lav array, hvis der er flere vindere.
-            int count = response.getPropertyCount();
-            winnersList = new ArrayList<Integer>(); 
-            for (int i = 0; i < count; i++)
-            {
-            	SoapObject property = (SoapObject)response.getProperty(i);
-                winnersList.add(Integer.parseInt(property.getProperty(i).toString()));
-            }
-            win = true;
-     
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-
+	
 	public void nextQuestion()
 	{
-		Intent intent = new Intent(this, QuestMainActivity.class);
-		intent.putExtra("choosenTopic", topicFromIntent);
-		intent.putExtra("pot", potSizeFromWeb);
+		if(questionNumb.equals("question4"))
+		{
+			goToWinner();
+		}
+		else
+		{
+			Intent intent = new Intent(this, QuestMainActivity.class);
+			intent.putExtra("choosenTopic", topicFromIntent);
+			intent.putExtra("pot", potSizeFromWeb);
 	
-		startActivity(intent);
+			startActivity(intent);
+		}
 		finish();
 	}
 	@Override
