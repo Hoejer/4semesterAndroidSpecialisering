@@ -41,6 +41,7 @@ public class SingleMainActivity extends Activity {
 	int betMoney;
 	int currMoney;
 	int potSizeFromWeb;
+	LinearLayout loadSpinner;
 	PropertyInfo gameIdPropBet;
 	PropertyInfo gameIdProp;
 	PropertyInfo betProp;
@@ -74,7 +75,7 @@ public class SingleMainActivity extends Activity {
         
         tv = (TextView) findViewById(R.id.tv_result);
         potSizeTextView = (TextView)findViewById(R.id.potSize);
-
+        loadSpinner = (LinearLayout)findViewById(R.id.linelayoutSingle);
         AsyncCallWS task = new AsyncCallWS();
 
         task.execute();
@@ -95,12 +96,14 @@ public class SingleMainActivity extends Activity {
  
         @Override
         protected void onPostExecute(Void result) {
+        	loadSpinner.setVisibility(View.GONE);
             Log.i("Do in background", "onPostExecute");
             alertDialogBet();
         }
  
         @Override
         protected void onPreExecute() {
+        	loadSpinner.setVisibility(View.VISIBLE);
             Log.i("Do in background", "onPreExecute");
             tv.setText("Choosing Topic");
             
@@ -187,9 +190,11 @@ public class SingleMainActivity extends Activity {
 						if(betMoney > currMoney)
 						{
 							input.setText("You only have : " + currMoney);
+							
 						}
 						else
 						{
+							
 							AsyncBet asyncBet = new AsyncBet();
 							asyncBet.execute();
 							d.dismiss();
@@ -221,12 +226,14 @@ public class SingleMainActivity extends Activity {
             }
             else
             {	tv.setText(topicFromWeb);
+            	loadSpinner.setVisibility(View.GONE);
             	potSizeTextView.setText("Potsize is = " + potSizeFromWeb + ".");
             }
         }
  
         @Override
         protected void onPreExecute() {
+        	loadSpinner.setVisibility(View.VISIBLE);
             Log.i("Do in background", "onPreExecute");
             tv.setText("Choosing Topic");
             

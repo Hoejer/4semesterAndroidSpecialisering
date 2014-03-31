@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
@@ -28,6 +29,7 @@ public class MainActivity extends Activity {
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
 	private final String SOAP_ACTION = "http://tempuri.org/startGameBot";
 	private final String METHOD_NAME = "startGameBot";
+	LinearLayout loadSpinner;
 	TextView usernameTV;
 	TextView moneyTV;
 	String username;
@@ -52,6 +54,8 @@ public class MainActivity extends Activity {
 		if (userId == -1) {
 			FailedToRecieveUserId();
 		}
+		
+		loadSpinner = (LinearLayout)findViewById(R.id.linelayoutMain);
 
 	}
 
@@ -101,6 +105,12 @@ public class MainActivity extends Activity {
 	{
 
 		@Override
+		protected void onPreExecute() {
+			loadSpinner.setVisibility(View.VISIBLE);
+			super.onPreExecute();
+		}
+
+		@Override
 		protected Void doInBackground(String... params) 
 		{
 			startGameBot();
@@ -115,6 +125,7 @@ public class MainActivity extends Activity {
 			}
 
 			else {
+				loadSpinner.setVisibility(View.GONE);
 				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
 						.putInt(PREF_GAMEID, gameId).commit();
 				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, "startQuestion").commit();

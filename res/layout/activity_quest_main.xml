@@ -16,57 +16,79 @@
         android:text="@string/Question"
         android:textSize="24sp" />
 
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/welcome"
+        android:layout_alignLeft="@+id/welcome"
+        android:gravity="center"
+        android:text=""
+        android:textSize="30sp" />
+    
     <Button
         android:id="@+id/answer1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/welcome"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="161dp"
-        android:text=""
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:clickable="true"
+        android:gravity="center"
+        android:onClick="onAnswerClick" />
+
+    
+
+    <Button
+        android:id="@+id/answer4"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_alignLeft="@+id/answer1"
+        android:layout_below="@+id/answer1"
+        android:clickable="true"
+        android:gravity="center"
         android:onClick="onAnswerClick" />
 
     <Button
         android:id="@+id/answer2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/answer1"
-        android:layout_alignBottom="@+id/answer1"
-        android:layout_alignRight="@+id/welcome"
-        android:layout_marginRight="35dp"
-        android:text=""
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_alignLeft="@+id/answer4"
+        android:layout_below="@+id/answer4"
         android:clickable="true"
+        android:gravity="center"
         android:onClick="onAnswerClick" />
 
     <Button
         android:id="@+id/answer3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/answer1"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="66dp"
-        android:text=""
-        android:clickable="true"
-        android:onClick="onAnswerClick" />
-
-    <Button
-        android:id="@+id/answer4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/answer3"
-        android:layout_alignBottom="@+id/answer3"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
         android:layout_alignLeft="@+id/answer2"
-        android:text=""
+        android:layout_below="@+id/answer2"
         android:clickable="true"
+        android:gravity="center"
         android:onClick="onAnswerClick" />
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/welcome"
-        android:layout_centerHorizontal="true"
-        android:text="" />
+    
+    
+    <LinearLayout
+        android:id="@+id/linelayoutQuest"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone" >    
+        
+        <ProgressBar
+            android:id="@+id/pbHeaderProgressQuest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="100dip"
+            android:minHeight="100dip" >
+        </ProgressBar>
+        
+        
+        </LinearLayout>
+
+    
 
 </RelativeLayout>

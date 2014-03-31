@@ -12,7 +12,8 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="162dp"
         android:gravity="center"
-        android:textSize="26sp" />
+        android:textSize="26sp"
+         />
 
     <TextView
         android:id="@+id/textView1"
@@ -44,5 +45,23 @@
         android:text=""
         android:textSize="26sp"
         android:gravity="center" />
+    <LinearLayout
+        android:id="@+id/linelayoutSingle"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone" >    
+        
+        <ProgressBar
+            android:id="@+id/pbHeaderProgressSingle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="100dip"
+            android:minHeight="100dip" >
+        </ProgressBar>
+        
+        
+        </LinearLayout>
 
 </RelativeLayout>

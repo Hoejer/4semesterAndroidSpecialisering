@@ -19,6 +19,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
@@ -42,15 +44,17 @@ public class QuestMainActivity extends Activity {
 	private PropertyInfo gameIdProp;
 	private PropertyInfo gameIdWhoWon;
 	boolean win;
+	LinearLayout loadSpinner;
 	ArrayList<Integer> winnersList;
 	Boolean bla = true;
 	String topicFromIntent;
 	String userAnswer;
+	TextView questionNumber;
 	TextView questionTv;
-	TextView answerTv1;
-	TextView answerTv2;
-	TextView answerTv3;
-	TextView answerTv4;
+	Button answerTv1;
+	Button answerTv2;
+	Button answerTv3;
+	Button answerTv4;
 	int questionId;
 	int gameId;
 	int userId;
@@ -71,13 +75,15 @@ public class QuestMainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_quest_main);
+		questionNumber = (TextView)findViewById(R.id.welcome);
 		questionTv = (TextView) findViewById(R.id.textView1);
-		answerTv1 = (TextView) findViewById(R.id.answer1);
-		answerTv2 = (TextView) findViewById(R.id.answer2);
-		answerTv3 = (TextView) findViewById(R.id.answer3);
-		answerTv4 = (TextView) findViewById(R.id.answer4);
+		answerTv1 = (Button) findViewById(R.id.answer1);
+		answerTv2 = (Button) findViewById(R.id.answer2);
+		answerTv3 = (Button) findViewById(R.id.answer3);
+		answerTv4 = (Button) findViewById(R.id.answer4);
 		topicFromIntent = getIntent().getExtras().getString("choosenTopic");
 		potSizeFromWeb = getIntent().getExtras().getInt("pot");
+		loadSpinner = (LinearLayout)findViewById(R.id.linelayoutQuest);
 		
 		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 		userId = getId.getInt(PREF_USERID, -1);
@@ -86,6 +92,7 @@ public class QuestMainActivity extends Activity {
 		if(questionNumb.equals("NothingFound") || questionNumb.equals("startQuestion"))
 		{
 			questionNumb = "question1";
+			questionNumber.setText("Question 1 of 4");
 			finished = false;
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
 			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
@@ -94,6 +101,7 @@ public class QuestMainActivity extends Activity {
 		else if (questionNumb.equals("question1"))
 		{
 			questionNumb = "question2";
+			questionNumber.setText("Question 2 of 4");
 			finished = false;
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
 			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
@@ -102,6 +110,7 @@ public class QuestMainActivity extends Activity {
 		else if (questionNumb.equals("question2"))
 		{
 			questionNumb = "question3";
+			questionNumber.setText("Question 3 of 4");
 			finished = false;
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
 			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
@@ -111,6 +120,7 @@ public class QuestMainActivity extends Activity {
 		else if (questionNumb.equals("question3"))
 		{
 			questionNumb = "question4";
+			questionNumber.setText("Question 4 of 4");
 			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, questionNumb).commit();
 			AsyncCallGetQuestion getQuestion = new AsyncCallGetQuestion();
 			getQuestion.execute();
@@ -181,12 +191,14 @@ public class QuestMainActivity extends Activity {
 
 		@Override
 		protected void onPreExecute() {
+			loadSpinner.setVisibility(View.VISIBLE);
 			Log.i("Do in background", "onPreExecute");
 			questionTv.setText("Loading Question...");
 		}
 
 		@Override
 		protected void onPostExecute(Void result) {
+			loadSpinner.setVisibility(View.GONE);
 			Log.i("Do in background", "onPostExecute");
 			// TODO Auto-generated method stub
 			questionTv.setText(question);
@@ -226,6 +238,7 @@ public class QuestMainActivity extends Activity {
 
 		@Override
 		protected void onPreExecute() {
+			loadSpinner.setVisibility(View.VISIBLE);
 			// TODO Auto-generated method stub
 			super.onPreExecute();
 		}
@@ -417,6 +430,7 @@ public class QuestMainActivity extends Activity {
 
 		@Override
 		protected void onPreExecute() {
+			loadSpinner.setVisibility(View.VISIBLE);
 			// TODO Auto-generated method stub
 			super.onPreExecute();
 		}

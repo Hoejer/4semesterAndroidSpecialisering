@@ -5,25 +5,21 @@ import java.util.ArrayList;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.R.string;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.Toast;
+
 
 public class LoginMainActivity extends Activity {
 	
@@ -124,9 +120,16 @@ public class LoginMainActivity extends Activity {
                 userFromDB.add(property.getProperty(i).toString());
             }
 
-			userId = Integer.parseInt(userFromDB.get(0));
-			userNameFromDB = userFromDB.get(1);
-			bankFromDB = Integer.parseInt(userFromDB.get(2));
+            if(userFromDB.get(0).equals("Fejl"))
+            {
+            	userId = 999;
+            }
+            else
+            {
+            	userId = Integer.parseInt(userFromDB.get(0));
+				userNameFromDB = userFromDB.get(1);
+				bankFromDB = Integer.parseInt(userFromDB.get(2));
+            }
 			
 		} 
 		catch (Exception e) {
@@ -190,6 +193,7 @@ public class LoginMainActivity extends Activity {
 			{
 				failedLogin();
 				loginButton.setClickable(true);
+				loadSpinner.setVisibility(View.GONE);
 			}
 			
 			else
