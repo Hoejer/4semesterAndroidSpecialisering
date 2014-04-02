@@ -61,6 +61,7 @@ public class QuestMainActivity extends Activity {
 	int gameId;
 	int userId;
 	int potSizeFromWeb;
+	int stoppedCountAt;
 	String questionNumb;
 	String question;
 	String answer1String;
@@ -218,6 +219,7 @@ public class QuestMainActivity extends Activity {
 
 			     public void onTick(long millisUntilFinished) {
 			        countDownTv.setText(String.valueOf(millisUntilFinished / 1000));
+			        stoppedCountAt = (int) millisUntilFinished / 1000;
 			     }
 
 			     public void onFinish() {
@@ -225,8 +227,7 @@ public class QuestMainActivity extends Activity {
 			    	 bla = false;
 			    	 countDownTv.setText("Out of time!");
 			         rightWrongDialog(getCurrentFocus());
-			     }
-			    
+			     } 
 			     
 			  }.start();
 
@@ -323,7 +324,10 @@ public class QuestMainActivity extends Activity {
 	 * Sætter ens userId i Game question(1,2,3,4) hvis man har svaret rigtigt hurtigst.
 	 */
 	public void answerQuestion() {
+		
 		bla = false;
+		if(chancesOfWinning())
+		{
 		SoapObject request = new SoapObject(NAMESPACE, "answerQuestion");
 		answerToCallFrom = new PropertyInfo();
 		answerToCallFrom.type = answerToCallFrom.STRING_CLASS;
@@ -382,6 +386,7 @@ public class QuestMainActivity extends Activity {
 
 		catch (Exception e) {
 			e.printStackTrace();
+		}
 		}
 
 	}
@@ -461,7 +466,25 @@ public class QuestMainActivity extends Activity {
 		}
 		
 	}
-
+	
+	public boolean chancesOfWinning()
+	{
+		boolean winCheck = true;
+		Random rand = new Random();
+		int bla = rand.nextInt(100);
+		if(stoppedCountAt < 7)
+		{
+			if(bla < 66)
+			{
+				winCheck = true;
+			}
+			else
+			{
+				winCheck = false;
+			}
+		}
+		return winCheck;
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
