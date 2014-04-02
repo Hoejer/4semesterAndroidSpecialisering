@@ -1,6 +1,8 @@
 package com.example.quizapp;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
@@ -194,10 +196,18 @@ public class QuestMainActivity extends Activity {
 			Log.i("Do in background", "onPostExecute");
 			// TODO Auto-generated method stub
 			questionTv.setText(question);
-			answerTv1.setText(answer1String);
-			answerTv2.setText(answer2String);
-			answerTv3.setText(answer3String);
-			answerTv4.setText(answer4String);
+			long seed = System.nanoTime();
+			ArrayList<String> randomizedAnswers = new ArrayList<String>();
+			randomizedAnswers.add(answer1String);
+			randomizedAnswers.add(answer2String);
+			randomizedAnswers.add(answer3String);
+			randomizedAnswers.add(answer4String);
+			Collections.shuffle(randomizedAnswers, new Random(seed));
+			
+			answerTv1.setText(randomizedAnswers.get(0));
+			answerTv2.setText(randomizedAnswers.get(1));
+			answerTv3.setText(randomizedAnswers.get(2));
+			answerTv4.setText(randomizedAnswers.get(3));
 		}
 
 		@Override

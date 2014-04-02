@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
+
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
@@ -59,6 +60,14 @@ public class MainActivity extends Activity {
 
 	}
 
+	@Override
+	protected void onResume() {
+		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+		money = getId.getInt(PREF_BANK, -1);
+		moneyTV.setText(String.valueOf(money));
+		super.onResume();
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) 
 	{

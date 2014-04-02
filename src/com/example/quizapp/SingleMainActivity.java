@@ -31,6 +31,7 @@ public class SingleMainActivity extends Activity {
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
 	private static final String PREF_QUESTIONNUMB = "QuestionNumb";
+	private static final String PREF_MYBET = "MyBet";
 	private static final String PREF_BANK = "Bank";
 	private final String NAMESPACE = "http://tempuri.org/";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
@@ -194,7 +195,7 @@ public class SingleMainActivity extends Activity {
 						}
 						else
 						{
-							
+							getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_MYBET, betMoney).commit();
 							AsyncBet asyncBet = new AsyncBet();
 							asyncBet.execute();
 							d.dismiss();

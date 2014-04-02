@@ -10,6 +10,7 @@ import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -21,19 +22,30 @@ import android.widget.TextView;
 public class WinnerMainActivity extends Activity {
 	
 	private final String NAMESPACE = "http://tempuri.org/";
+	public static final String PREFS_NAME = "MyPrefsFile";
+	private static final String PREF_USERNAME = "Username";
+	private static final String PREF_BANK = "Bank";
+	private static final String PREF_MYBET = "MyBet";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
 	ArrayList<String> winnersList;
 	LinearLayout loadSpinner;
 	TextView userWhoWonTV;
 	TextView amountWonTV;
+	String myUsername;
 	int gameId;
 	int potsize;
+	int myPotsize;
+	int myBet;
 	private PropertyInfo gameIdWhoWon;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_winner_main);
+		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+		myUsername = getId.getString(PREF_USERNAME, "Error");
+		myPotsize = getId.getInt(PREF_BANK, -1);
+		myBet = getId.getInt(PREF_MYBET, -1);
 		gameId = getIntent().getExtras().getInt("gameId");
 		potsize = getIntent().getExtras().getInt("pot");
 		userWhoWonTV = (TextView)findViewById(R.id.userWhoWon);
@@ -118,9 +130,13 @@ public class WinnerMainActivity extends Activity {
         }
     }
     
+    /**
+     * Indsætter vinderne i et textview, og tjekker om der er flere vindere.
+     */
     public void setWinners()
     {
     	String winwin = "";
+    	updateMyBank();
 		for(int i = 0; i < winnersList.size(); i++)
 		{
 			if(i == winnersList.size() - 1)
@@ -135,6 +151,23 @@ public class WinnerMainActivity extends Activity {
 		userWhoWonTV.setText(winwin);
 		amountWonTV.setText(String.valueOf(potsize));
     	
+    }
+    
+    public void updateMyBank()
+    {
+    	for(int i = 0; i < winnersList.size(); i ++)
+    	{
+    		if(winnersList.get(i).equals(myUsername))
+    		{
+    			myPotsize += potsize;
+    			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_BANK, myPotsize).commit();
+    		}
+    		else
+    		{
+    			myPotsize -= myBet;
+    			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_BANK, myPotsize).commit();
+    		}
+    	}
     }
 	public void onBackClick(View v)
 	{
