@@ -1,6 +1,5 @@
 package com.example.quizapp;
 
-import java.util.ArrayList;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
@@ -30,7 +29,6 @@ public class SingleMainActivity extends Activity {
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
-	private static final String PREF_QUESTIONNUMB = "QuestionNumb";
 	private static final String PREF_MYBET = "MyBet";
 	private static final String PREF_BANK = "Bank";
 	private final String NAMESPACE = "http://tempuri.org/";

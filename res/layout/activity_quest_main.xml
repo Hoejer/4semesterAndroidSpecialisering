@@ -11,20 +11,10 @@
     <TextView
         android:id="@+id/welcome"
         android:layout_width="match_parent"
-        android:layout_height="66dp"
+        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/Question"
         android:textSize="24sp" />
-
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/welcome"
-        android:layout_alignLeft="@+id/welcome"
-        android:gravity="center"
-        android:text=""
-        android:textSize="30sp" />
     
     <Button
         android:id="@+id/answer1"
@@ -89,6 +79,25 @@
         
         </LinearLayout>
 
-    
+    <TextView
+        android:id="@+id/timerCountDown"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@+id/welcome"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="14dp"
+        android:text=""
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/welcome"
+        android:layout_below="@+id/timerCountDown"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:textSize="30sp" />
 
 </RelativeLayout>

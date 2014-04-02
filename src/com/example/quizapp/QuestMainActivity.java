@@ -13,6 +13,7 @@ import org.ksoap2.transport.HttpTransportSE;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -51,6 +52,7 @@ public class QuestMainActivity extends Activity {
 	String userAnswer;
 	TextView questionNumber;
 	TextView questionTv;
+	TextView countDownTv;
 	Button answerTv1;
 	Button answerTv2;
 	Button answerTv3;
@@ -66,6 +68,7 @@ public class QuestMainActivity extends Activity {
 	String answer3String;
 	String answer4String;
 	boolean finished;
+	CountDownTimer cdt;
 
 	/**
 	 * Assigner en masse textviews til navne, og henter userid, gameid og question numb ud af Preferences.
@@ -81,6 +84,7 @@ public class QuestMainActivity extends Activity {
 		answerTv2 = (Button) findViewById(R.id.answer2);
 		answerTv3 = (Button) findViewById(R.id.answer3);
 		answerTv4 = (Button) findViewById(R.id.answer4);
+		countDownTv = (TextView)findViewById(R.id.timerCountDown);
 		topicFromIntent = getIntent().getExtras().getString("choosenTopic");
 		potSizeFromWeb = getIntent().getExtras().getInt("pot");
 		loadSpinner = (LinearLayout)findViewById(R.id.linelayoutQuest);
@@ -169,6 +173,7 @@ public class QuestMainActivity extends Activity {
 	 */
 	
 	public void setClickableFalse() {
+		cdt.cancel();
 		answerTv1.setClickable(false);
 		answerTv2.setClickable(false);
 		answerTv3.setClickable(false);
@@ -208,6 +213,23 @@ public class QuestMainActivity extends Activity {
 			answerTv2.setText(randomizedAnswers.get(1));
 			answerTv3.setText(randomizedAnswers.get(2));
 			answerTv4.setText(randomizedAnswers.get(3));
+			
+			cdt = new CountDownTimer(11000, 1000) {
+
+			     public void onTick(long millisUntilFinished) {
+			        countDownTv.setText(String.valueOf(millisUntilFinished / 1000));
+			     }
+
+			     public void onFinish() {
+			    	 setClickableFalse();
+			    	 bla = false;
+			    	 countDownTv.setText("Out of time!");
+			         rightWrongDialog(getCurrentFocus());
+			     }
+			    
+			     
+			  }.start();
+
 		}
 
 		@Override
@@ -435,9 +457,11 @@ public class QuestMainActivity extends Activity {
 			intent.putExtra("pot", potSizeFromWeb);
 	
 			startActivity(intent);
+			finish();
 		}
-		finish();
+		
 	}
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
