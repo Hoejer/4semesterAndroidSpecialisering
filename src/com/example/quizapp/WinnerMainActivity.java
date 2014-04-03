@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -24,6 +25,7 @@ public class WinnerMainActivity extends Activity {
 	private final String NAMESPACE = "http://tempuri.org/";
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERNAME = "Username";
+	private static final String PREF_USERID = "UserId";
 	private static final String PREF_BANK = "Bank";
 	private static final String PREF_MYBET = "MyBet";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
@@ -32,17 +34,22 @@ public class WinnerMainActivity extends Activity {
 	TextView userWhoWonTV;
 	TextView amountWonTV;
 	String myUsername;
+	int userId;
 	int gameId;
+	int potToTransfer;
 	int potsize;
 	int myPotsize;
 	int myBet;
 	private PropertyInfo gameIdWhoWon;
+	private PropertyInfo userIdProp;
+	private PropertyInfo iWonHowMuchProp;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_winner_main);
 		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+		userId= getId.getInt(PREF_USERID, -1);
 		myUsername = getId.getString(PREF_USERNAME, "Error");
 		myPotsize = getId.getInt(PREF_BANK, -1);
 		myBet = getId.getInt(PREF_MYBET, -1);
@@ -117,11 +124,13 @@ public class WinnerMainActivity extends Activity {
             SoapObject response = (SoapObject) envelope.bodyIn;
             
             //Lav array, hvis der er flere vindere.
-            int count = response.getPropertyCount();
+            SoapObject property = (SoapObject)response.getProperty(0);
+            int count = property.getPropertyCount();
             winnersList = new ArrayList<String>(); 
+            
             for (int i = 0; i < count; i++)
             {
-            	SoapObject property = (SoapObject)response.getProperty(i);
+            	
                 winnersList.add(property.getProperty(i).toString());
             }
      
@@ -136,7 +145,7 @@ public class WinnerMainActivity extends Activity {
     public void setWinners()
     {
     	String winwin = "";
-    	updateMyBank();
+    	didIWin();
 		for(int i = 0; i < winnersList.size(); i++)
 		{
 			if(i == winnersList.size() - 1)
@@ -153,21 +162,83 @@ public class WinnerMainActivity extends Activity {
     	
     }
     
-    public void updateMyBank()
+    public void didIWin()
     {
     	for(int i = 0; i < winnersList.size(); i ++)
     	{
     		if(winnersList.get(i).equals(myUsername))
     		{
-    			myPotsize += potsize;
-    			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_BANK, myPotsize).commit();
+    			potToTransfer =  (potsize / winnersList.size()) + myPotsize - myBet;
+    			
+    			AsyncUpdateBank asyncUpdateBank = new AsyncUpdateBank();
+    			asyncUpdateBank.execute();
     		}
-    		else
-    		{
-    			myPotsize -= myBet;
-    			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_BANK, myPotsize).commit();
-    		}
+    		
     	}
+    }
+    
+    public void updateMyBank()
+    {
+    	SoapObject request = new SoapObject(NAMESPACE, "iWon");
+    	
+    	userIdProp = new PropertyInfo();
+    	userIdProp.type = userIdProp.INTEGER_CLASS;
+    	userIdProp.setName("userId");
+    	userIdProp.setValue(userId);
+    	userIdProp.setType(Integer.class);
+    	
+    	request.addProperty(userIdProp);
+    	
+    	iWonHowMuchProp = new PropertyInfo();
+    	iWonHowMuchProp.type = iWonHowMuchProp.INTEGER_CLASS;
+    	iWonHowMuchProp.setName("howMuch");
+    	iWonHowMuchProp.setValue(potToTransfer);
+    	iWonHowMuchProp.setType(Integer.class);
+    	
+    	request.addProperty(iWonHowMuchProp);
+    	
+    	 SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                 SoapEnvelope.VER11);
+         envelope.dotNet = true;
+         //Set output SOAP object
+         envelope.setOutputSoapObject(request);
+         //Create HTTP call object
+         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+      
+         try {
+             //Invole web service
+             androidHttpTransport.call("http://tempuri.org/iWon", envelope);
+             //Get the response
+             //SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
+             
+      
+         } catch (Exception e) {
+             e.printStackTrace();
+         }
+    	
+    }
+    
+    private class AsyncUpdateBank extends AsyncTask<String, Void, Void>
+    {
+
+		@Override
+		protected Void doInBackground(String... params) {
+			updateMyBank();
+			return null;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			loadSpinner.setVisibility(View.VISIBLE);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			loadSpinner.setVisibility(View.GONE);
+			super.onPostExecute(result);
+		}
+    	
     }
 	public void onBackClick(View v)
 	{

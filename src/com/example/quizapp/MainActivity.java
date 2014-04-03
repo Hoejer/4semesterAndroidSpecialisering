@@ -20,6 +20,8 @@ import android.widget.TextView;
 public class MainActivity extends Activity {
 
 
+	
+
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
@@ -60,14 +62,74 @@ public class MainActivity extends Activity {
 
 	}
 
+	
 	@Override
-	protected void onResume() {
-		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-		money = getId.getInt(PREF_BANK, -1);
-		moneyTV.setText(String.valueOf(money));
-		super.onResume();
+	protected void onRestart() {
+		AsyncGetUpdatedBank asyncGetUpdatedBank = new AsyncGetUpdatedBank();
+		asyncGetUpdatedBank.execute();
+		super.onRestart();
 	}
 	
+
+	
+	public void getUpdatedBank()
+	{
+		SoapObject request = new SoapObject(NAMESPACE, "getBank");
+
+		userIdProp = new PropertyInfo();
+		userIdProp.type = userIdProp.INTEGER_CLASS;
+		userIdProp.setName("userId");
+		userIdProp.setValue(userId);
+		userIdProp.setType(Integer.class);
+
+		request.addProperty(userIdProp);
+
+		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+				SoapEnvelope.VER11);
+		envelope.dotNet = true;
+		envelope.setOutputSoapObject(request);
+		HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+
+		try 
+		{
+			androidHttpTransport.call("http://tempuri.org/getBank", envelope);
+
+			SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
+
+			money = Integer.parseInt(response.toString());
+
+		} 
+		catch (Exception e) 
+		{
+			// TODO: handle exception
+		}
+
+	}
+	
+	private class AsyncGetUpdatedBank extends AsyncTask<String, Void, Void>
+	{
+
+		@Override
+		protected Void doInBackground(String... params) {
+			getUpdatedBank();
+			return null;
+		}
+
+		@Override
+		protected void onPreExecute() {
+			loadSpinner.setVisibility(View.VISIBLE);
+			super.onPreExecute();
+		}
+
+		@Override
+		protected void onPostExecute(Void result) {
+			loadSpinner.setVisibility(View.GONE);
+			moneyTV.setText(String.valueOf(money));
+			getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_BANK, money).commit();
+			super.onPostExecute(result);
+		}
+		
+	}
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) 
 	{
@@ -135,8 +197,7 @@ public class MainActivity extends Activity {
 
 			else {
 				loadSpinner.setVisibility(View.GONE);
-				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit()
-						.putInt(PREF_GAMEID, gameId).commit();
+				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_GAMEID, gameId).commit();
 				getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putString(PREF_QUESTIONNUMB, "startQuestion").commit();
 				
 				SinglePlayerMain();
