@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 public class QuestMainActivity extends Activity {
 	
+	
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_GAMEID = "GameId";
@@ -485,6 +486,13 @@ public class QuestMainActivity extends Activity {
 		}
 		return winCheck;
 	}
+	
+	@Override
+	public void onBackPressed() {
+		cdt.cancel();
+		super.onBackPressed();
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

@@ -31,6 +31,7 @@ public class SingleMainActivity extends Activity {
 	private static final String PREF_GAMEID = "GameId";
 	private static final String PREF_MYBET = "MyBet";
 	private static final String PREF_BANK = "Bank";
+	private static final String PREF_QUESTIONNUMB = "QuestionNumb";
 	private final String NAMESPACE = "http://tempuri.org/";
 	private final String URL = "http://jhl.jobudbud.dk/WebService.asmx";
 	private final String SOAP_ACTION = "http://tempuri.org/getRandomTopic";
@@ -64,6 +65,7 @@ public class SingleMainActivity extends Activity {
         setContentView(R.layout.activity_single_main);
 
         SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        getId.edit().putString(PREF_QUESTIONNUMB, "startQuestion").commit();
         gameId = getId.getInt(PREF_GAMEID, -1);
         SharedPreferences getUser = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         userId = getUser.getInt(PREF_USERID, -1);
@@ -183,22 +185,28 @@ public class SingleMainActivity extends Activity {
 					@Override
 					public void onClick(View view) {
 						// TODO Do something
-						
-						betMoney = Integer.parseInt(input.getText().toString());
-						currMoney = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getInt(PREF_BANK, -1);
-						if(betMoney > currMoney)
+						if(input.getText().toString().equals(""))
 						{
-							input.setText("You only have : " + currMoney);
-							
+							input.setHint("Please place your bet!");
 						}
 						else
 						{
-							getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_MYBET, betMoney).commit();
-							AsyncBet asyncBet = new AsyncBet();
-							asyncBet.execute();
-							d.dismiss();
+							betMoney = Integer.parseInt(input.getText().toString());
+							currMoney = getSharedPreferences(PREFS_NAME, MODE_PRIVATE).getInt(PREF_BANK, -1);
+							if(betMoney > currMoney)
+							{
+								input.setText("");
+								input.setHint("You only have : " + currMoney);
+							
+							}
+							else
+							{
+								getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit().putInt(PREF_MYBET, betMoney).commit();
+								AsyncBet asyncBet = new AsyncBet();
+								asyncBet.execute();
+								d.dismiss();
+							}
 						}
-						
 					}
 				});
 			}

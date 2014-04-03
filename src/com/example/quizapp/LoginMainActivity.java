@@ -24,6 +24,7 @@ import android.widget.LinearLayout;
 public class LoginMainActivity extends Activity {
 	
 	
+	
 	public static final String PREFS_NAME = "MyPrefsFile";
 	private static final String PREF_USERID = "UserId";
 	private static final String PREF_USERNAME = "Username";
@@ -54,6 +55,12 @@ public class LoginMainActivity extends Activity {
 
 	}
 	
+	
+	@Override
+	protected void onRestart() {
+		loginButton.setClickable(true);
+		super.onRestart();
+	}
 	/**
 	 * Henter brugernavn og password ud af app'en og sender dem til verificering igennem AsyncCallLogin.
 	 * @param v

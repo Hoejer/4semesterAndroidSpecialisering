@@ -14,6 +14,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.view.Menu;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -33,6 +34,7 @@ public class MainActivity extends Activity {
 	private final String SOAP_ACTION = "http://tempuri.org/startGameBot";
 	private final String METHOD_NAME = "startGameBot";
 	LinearLayout loadSpinner;
+	Button singlePlayerButton;
 	TextView usernameTV;
 	TextView moneyTV;
 	String username;
@@ -48,6 +50,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		usernameTV = (TextView)findViewById(R.id.usernameProfile);
 		moneyTV = (TextView)findViewById(R.id.money);
+		singlePlayerButton = (Button)findViewById(R.id.button1);
 		SharedPreferences getId = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
 		username = getId.getString(PREF_USERNAME, "Error!");
 		usernameTV.setText(username);
@@ -65,6 +68,7 @@ public class MainActivity extends Activity {
 	
 	@Override
 	protected void onRestart() {
+		singlePlayerButton.setClickable(true);
 		AsyncGetUpdatedBank asyncGetUpdatedBank = new AsyncGetUpdatedBank();
 		asyncGetUpdatedBank.execute();
 		super.onRestart();
@@ -155,6 +159,7 @@ public class MainActivity extends Activity {
 	 */
 	public void SinglePlayerOnClick(View view) 
 	{
+		singlePlayerButton.setClickable(false);
 		AsyncStartGame asyncStartGame = new AsyncStartGame();
 		asyncStartGame.execute();
 	}
